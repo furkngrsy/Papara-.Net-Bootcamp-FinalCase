@@ -29,7 +29,7 @@ namespace Papara_Final_Project.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDTO model)
         {
-            ValidationResult result = await _registerValidator.ValidateAsync(model);
+            ValidationResult result = _registerValidator.Validate(model);
 
             if (!result.IsValid)
             {
@@ -43,9 +43,9 @@ namespace Papara_Final_Project.Controllers
                 LastName = model.LastName,
                 Email = model.Email,
                 Password = model.Password,
-                Role = "User", // Normal kullanıcı olarak kaydediliyor
-                WalletBalance = 0, // Default value
-                PointsBalance = 0 // Default value
+                Role = "User", 
+                WalletBalance = 0, 
+                PointsBalance = 0 
             };
 
             await _userService.Register(user);
@@ -68,7 +68,7 @@ namespace Papara_Final_Project.Controllers
         [HttpPost("admin_register")]
         public async Task<IActionResult> AdminRegister([FromBody] UserRegisterDTO model)
         {
-            ValidationResult result = await _registerValidator.ValidateAsync(model);
+            ValidationResult result = _registerValidator.Validate(model);
 
             if (!result.IsValid)
             {
@@ -82,9 +82,9 @@ namespace Papara_Final_Project.Controllers
                 LastName = model.LastName,
                 Email = model.Email,
                 Password = model.Password,
-                Role = "Admin", // Admin olarak kaydediliyor
-                WalletBalance = 0, // Default value
-                PointsBalance = 0 // Default value
+                Role = "Admin", 
+                WalletBalance = 0, 
+                PointsBalance = 0 
             };
 
             await _userService.Register(admin);
@@ -110,7 +110,7 @@ namespace Papara_Final_Project.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] UserUpdateDTO model)
         {
-            ValidationResult result = await _updateValidator.ValidateAsync(model);
+            ValidationResult result = _updateValidator.Validate(model);
 
             if (!result.IsValid)
             {
@@ -125,7 +125,6 @@ namespace Papara_Final_Project.Controllers
                 LastName = model.LastName,
                 Email = model.Email,
                 Password = model.Password,
-                // Rol bilgisi güncellenmeyecek
             };
 
             await _userService.Update(user);

@@ -41,7 +41,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Papara-Final-Project", Version = "v1" });
 
-    // JWT için Security Definition ekliyoruz
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -52,7 +51,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // Security Requirement ekliyoruz
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -69,7 +67,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Diðer servislerin eklenmesi (Dependency Injection)
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -80,7 +78,6 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 
-// Controllers ekleniyor
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -97,6 +94,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 

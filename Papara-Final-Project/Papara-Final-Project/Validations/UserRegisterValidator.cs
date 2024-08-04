@@ -1,8 +1,6 @@
 ﻿using FluentValidation;
 using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Repositories;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Validations
 {
@@ -23,20 +21,19 @@ namespace Papara_Final_Project.Validations
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Invalid email format.")
-                .MustAsync(EmailNotInUse).WithMessage("Email is already in use.");
+                .Must(EmailNotInUse).WithMessage("Email is already in use.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
                 .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
                 .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
                 .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-                .Matches("[0-9]").WithMessage("Password must contain at least one number.")
-                .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+                .Matches("[0-9]").WithMessage("Password must contain at least one number.");
         }
 
-        private async Task<bool> EmailNotInUse(string email, CancellationToken cancellationToken)
+        private bool EmailNotInUse(string email)
         {
-            return !await _userRepository.EmailExists(email);
+            return !_userRepository.EmailExists(email).Result;
         }
     }
 }

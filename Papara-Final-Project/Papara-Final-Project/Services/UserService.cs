@@ -13,19 +13,19 @@ namespace Papara_Final_Project.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        public UserService(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
             _configuration = configuration;
         }
 
         public async Task<UserDTO> Authenticate(string email, string password)
         {
-            var user = await _userRepository.GetUserByEmail(email);
-            if (user == null || user.Password != password)
+            var user = await _unitOfWork.Users.GetUserByEmail(email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 return null;
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -60,22 +60,30 @@ namespace Papara_Final_Project.Services
 
         public async Task Register(User user)
         {
-            await _userRepository.AddUser(user);
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            await _unitOfWork.Users.AddUser(user);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task Update(User user)
         {
-            await _userRepository.UpdateUser(user);
+            if (!string.IsNullOrEmpty(user.Password))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            }
+            await _unitOfWork.Users.UpdateUser(user);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task Delete(int id)
         {
-            await _userRepository.DeleteUser(id);
+            await _unitOfWork.Users.DeleteUser(id);
+            await _unitOfWork.CompleteAsync();
         }
 
         public async Task<User> GetUserById(int id)
         {
-            return await _userRepository.GetUserById(id);
+            return await _unitOfWork.Users.GetUserById(id);
         }
     }
 }
