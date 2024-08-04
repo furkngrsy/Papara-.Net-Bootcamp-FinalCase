@@ -19,7 +19,7 @@ namespace Papara_Final_Project.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Tag = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -50,9 +50,10 @@ namespace Papara_Final_Project.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    PointsPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    MaxPoints = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
+                    Stock = table.Column<int>(type: "int", nullable: false),
+                    RewardRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MaxReward = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,7 +80,7 @@ namespace Papara_Final_Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductCategories",
+                name: "ProductMatchCategories",
                 columns: table => new
                 {
                     ProductId = table.Column<int>(type: "int", nullable: false),
@@ -87,15 +88,15 @@ namespace Papara_Final_Project.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategories", x => new { x.ProductId, x.CategoryId });
+                    table.PrimaryKey("PK_ProductMatchCategories", x => new { x.ProductId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_ProductCategories_Categories_CategoryId",
+                        name: "FK_ProductMatchCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductCategories_Products_ProductId",
+                        name: "FK_ProductMatchCategories_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -168,8 +169,8 @@ namespace Papara_Final_Project.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductCategories_CategoryId",
-                table: "ProductCategories",
+                name: "IX_ProductMatchCategories_CategoryId",
+                table: "ProductMatchCategories",
                 column: "CategoryId");
         }
 
@@ -183,7 +184,7 @@ namespace Papara_Final_Project.Migrations
                 name: "OrderDetails");
 
             migrationBuilder.DropTable(
-                name: "ProductCategories");
+                name: "ProductMatchCategories");
 
             migrationBuilder.DropTable(
                 name: "Orders");

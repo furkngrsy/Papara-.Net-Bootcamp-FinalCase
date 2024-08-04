@@ -1,5 +1,5 @@
 ﻿using Papara_Final_Project.Models;
-using Papara_Final_Project.Repositories;
+using Papara_Final_Project.UnitOfWorks;
 using Papara_Final_Project.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

@@ -1,7 +1,7 @@
 ﻿using Papara_Final_Project.Models;
-using System.Threading.Tasks;
+using Papara_Final_Project.Repositories;
 
-namespace Papara_Final_Project.Repositories
+namespace Papara_Final_Project.UnitOfWorks
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -10,16 +10,14 @@ namespace Papara_Final_Project.Repositories
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            Users = new UserRepository(_context);
             Products = new ProductRepository(_context);
-            Orders = new OrderRepository(_context);
-            Coupons = new CouponRepository(_context);
+            Users = new UserRepository(_context);
+            Categories = new CategoryRepository(_context);
         }
 
-        public IUserRepository Users { get; private set; }
         public IProductRepository Products { get; private set; }
-        public IOrderRepository Orders { get; private set; }
-        public ICouponRepository Coupons { get; private set; }
+        public IUserRepository Users { get; private set; }
+        public ICategoryRepository Categories { get; private set; }
 
         public async Task<int> CompleteAsync()
         {

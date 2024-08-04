@@ -1,46 +1,49 @@
-﻿using Papara_Final_Project.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Papara_Final_Project.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Papara_Final_Project.Repositories
+public class ProductRepository : IProductRepository
 {
-    public class ProductRepository : IProductRepository
+    private readonly ApplicationDbContext _context;
+
+    public ProductRepository(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext _context;
+        _context = context;
+    }
 
-        public ProductRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<IEnumerable<Product>> GetAllProducts()
+    {
+        return await _context.Products
+            .Include(p => p.ProductMatchCategories)
+            .ThenInclude(pc => pc.Category)
+            .ToListAsync();
+    }
 
-        public Product GetProductById(int id)
-        {
-            return _context.Products.Find(id);
-        }
+    public async Task<Product> GetProductById(int id)
+    {
+        return await _context.Products
+            .Include(p => p.ProductMatchCategories)
+            .ThenInclude(pc => pc.Category)
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
 
-        public IEnumerable<Product> GetAllProducts()
-        {
-            return _context.Products.ToList();
-        }
+    public async Task AddProduct(Product product)
+    {
+        await _context.Products.AddAsync(product);
+    }
 
-        public void AddProduct(Product product)
-        {
-            _context.Products.Add(product);
-            _context.SaveChanges();
-        }
+    public async Task UpdateProduct(Product product)
+    {
+        _context.Products.Update(product);
+    }
 
-        public void UpdateProduct(Product product)
+    public async Task DeleteProduct(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product != null)
         {
-            _context.Products.Update(product);
-            _context.SaveChanges();
-        }
-
-        public void DeleteProduct(int id)
-        {
-            var product = _context.Products.Find(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-                _context.SaveChanges();
-            }
+            _context.Products.Remove(product);
         }
     }
 }

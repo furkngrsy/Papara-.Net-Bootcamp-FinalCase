@@ -1,62 +1,57 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Papara_Final_Project.Models;
-using Papara_Final_Project.Services;
 
-namespace Papara_Final_Project.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class ProductController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductController : ControllerBase
+    private readonly IProductService _productService;
+
+    public ProductController(IProductService productService)
     {
-        private readonly IProductService _productService;
+        _productService = productService;
+    }
 
-        public ProductController(IProductService productService)
+    [HttpGet]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        var products = await _productService.GetAllProducts();
+        return Ok(products);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductById(int id)
+    {
+        var product = await _productService.GetProductById(id);
+        if (product == null)
         {
-            _productService = productService;
+            return NotFound();
         }
 
-        [AllowAnonymous]
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var products = _productService.GetAllProducts();
-            return Ok(products);
-        }
+        return Ok(product);
+    }
 
-        [AllowAnonymous]
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var product = _productService.GetProductById(id);
-            if (product == null)
-                return NotFound();
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> AddProduct([FromBody] ProductDTO productDto)
+    {
+        await _productService.AddProduct(productDto);
+        return Ok();
+    }
 
-            return Ok(product);
-        }
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDTO productDto)
+    {
+        await _productService.UpdateProduct(id, productDto);
+        return Ok();
+    }
 
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public IActionResult Add([FromBody] Product product)
-        {
-            _productService.AddProduct(product);
-            return Ok();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPut]
-        public IActionResult Update([FromBody] Product product)
-        {
-            _productService.UpdateProduct(product);
-            return Ok();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            _productService.DeleteProduct(id);
-            return Ok();
-        }
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        await _productService.DeleteProduct(id);
+        return Ok();
     }
 }

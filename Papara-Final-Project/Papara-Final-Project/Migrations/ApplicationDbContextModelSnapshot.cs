@@ -22,7 +22,7 @@ namespace Papara_Final_Project.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Papara_Final_Project.Models.Category", b =>
+            modelBuilder.Entity("Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,7 +34,7 @@ namespace Papara_Final_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Tags")
+                    b.Property<string>("Tag")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -127,54 +127,6 @@ namespace Papara_Final_Project.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("Papara_Final_Project.Models.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("MaxPoints")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PointsPercentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("Papara_Final_Project.Models.ProductCategory", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("ProductCategories");
-                });
-
             modelBuilder.Entity("Papara_Final_Project.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -214,6 +166,57 @@ namespace Papara_Final_Project.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("MaxReward")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("RewardRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ProductMatchCategory", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductMatchCategories");
+                });
+
             modelBuilder.Entity("Papara_Final_Project.Models.Order", b =>
                 {
                     b.HasOne("Papara_Final_Project.Models.User", "User")
@@ -233,7 +236,7 @@ namespace Papara_Final_Project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Papara_Final_Project.Models.Product", "Product")
+                    b.HasOne("Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -244,16 +247,16 @@ namespace Papara_Final_Project.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Papara_Final_Project.Models.ProductCategory", b =>
+            modelBuilder.Entity("ProductMatchCategory", b =>
                 {
-                    b.HasOne("Papara_Final_Project.Models.Category", "Category")
-                        .WithMany("ProductCategories")
+                    b.HasOne("Category", "Category")
+                        .WithMany("ProductMatchCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Papara_Final_Project.Models.Product", "Product")
-                        .WithMany("ProductCategories")
+                    b.HasOne("Product", "Product")
+                        .WithMany("ProductMatchCategories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -263,9 +266,9 @@ namespace Papara_Final_Project.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Papara_Final_Project.Models.Category", b =>
+            modelBuilder.Entity("Category", b =>
                 {
-                    b.Navigation("ProductCategories");
+                    b.Navigation("ProductMatchCategories");
                 });
 
             modelBuilder.Entity("Papara_Final_Project.Models.Order", b =>
@@ -273,9 +276,9 @@ namespace Papara_Final_Project.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("Papara_Final_Project.Models.Product", b =>
+            modelBuilder.Entity("Product", b =>
                 {
-                    b.Navigation("ProductCategories");
+                    b.Navigation("ProductMatchCategories");
                 });
 #pragma warning restore 612, 618
         }

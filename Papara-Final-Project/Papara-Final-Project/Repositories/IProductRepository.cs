@@ -1,13 +1,8 @@
-﻿using Papara_Final_Project.Models;
-
-namespace Papara_Final_Project.Repositories
+﻿public interface IProductRepository
 {
-    public interface IProductRepository
-    {
-        Product GetProductById(int id);
-        IEnumerable<Product> GetAllProducts();
-        void AddProduct(Product product);
-        void UpdateProduct(Product product);
-        void DeleteProduct(int id);
-    }
+    Task<IEnumerable<Product>> GetAllProducts();
+    Task<Product> GetProductById(int id);
+    Task AddProduct(Product product);
+    Task UpdateProduct(Product product);
+    Task DeleteProduct(int id);
 }
