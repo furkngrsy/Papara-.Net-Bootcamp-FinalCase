@@ -20,14 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Middelware\" />
-    <Folder Include="DTOs\" />
     <Folder Include="Configurations\" />
-    <Folder Include="Migrations\" />
     <Folder Include="Utilities\" />
-    <Folder Include="Services\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>
