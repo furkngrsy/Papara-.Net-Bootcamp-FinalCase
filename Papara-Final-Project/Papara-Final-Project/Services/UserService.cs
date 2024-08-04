@@ -1,10 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Papara_Final_Project.Models;
+using Papara_Final_Project.Repositories;
+using Papara_Final_Project.DTOs;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Papara_Final_Project.Models;
-using Papara_Final_Project.Repositories;
-using Papara_Final_Project.DTOs;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Services
 {
@@ -19,13 +22,12 @@ namespace Papara_Final_Project.Services
             _configuration = configuration;
         }
 
-        public UserDTO Authenticate(string email, string password)
+        public async Task<UserDTO> Authenticate(string email, string password)
         {
-            var user = _userRepository.GetUserByEmail(email);
+            var user = await _userRepository.GetUserByEmail(email);
             if (user == null || user.Password != password)
                 return null;
 
-            // JWT token oluşturma işlemi
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -56,21 +58,24 @@ namespace Papara_Final_Project.Services
             };
         }
 
-        public UserDTO Register(User user)
+        public async Task Register(User user)
         {
-            _userRepository.AddUser(user);
-            return Authenticate(user.Email, user.Password); // Kullanıcı kaydından sonra token oluşturup döndürmek için Authenticate metodunu çağırıyoruz
+            await _userRepository.AddUser(user);
         }
 
-
-        public void Update(User user)
+        public async Task Update(User user)
         {
-            _userRepository.UpdateUser(user);
+            await _userRepository.UpdateUser(user);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            _userRepository.DeleteUser(id);
+            await _userRepository.DeleteUser(id);
+        }
+
+        public async Task<User> GetUserById(int id)
+        {
+            return await _userRepository.GetUserById(id);
         }
     }
 }

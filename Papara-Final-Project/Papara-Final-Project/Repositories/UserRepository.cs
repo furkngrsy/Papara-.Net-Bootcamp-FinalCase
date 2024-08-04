@@ -1,4 +1,7 @@
 ﻿using Papara_Final_Project.Models;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Papara_Final_Project.Repositories
 {
@@ -11,36 +14,41 @@ namespace Papara_Final_Project.Repositories
             _context = context;
         }
 
-        public User GetUserById(int id)
+        public async Task<bool> EmailExists(string email)
         {
-            return _context.Users.Find(id);
+            return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        public User GetUserByEmail(string email)
+        public async Task AddUser(User user)
         {
-            return _context.Users.SingleOrDefault(u => u.Email == email);
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
         }
 
-        public void AddUser(User user)
+        public async Task<User> GetUserByEmail(string email)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public void UpdateUser(User user)
+        public async Task UpdateUser(User user)
         {
             _context.Users.Update(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteUser(int id)
+        public async Task DeleteUser(int id)
         {
-            var user = _context.Users.Find(id);
+            var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
                 _context.Users.Remove(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<User> GetUserById(int id)
+        {
+            return await _context.Users.FindAsync(id);
         }
     }
 }

@@ -1,19 +1,25 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using FluentValidation.AspNetCore;
 using Microsoft.OpenApi.Models;
 using Papara_Final_Project.Models;
 using Papara_Final_Project.Repositories;
 using Papara_Final_Project.Services;
+using Papara_Final_Project.Validations;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Veritabaný baðlamýný ekliyoruz
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MsSqlConnection")));
 
-// JWT ayarlarýný ekliyoruz
+builder.Services.AddControllers().AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssemblyContaining<UserRegisterValidator>();
+    fv.RegisterValidatorsFromAssemblyContaining<UserUpdateValidator>();
+});
+
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

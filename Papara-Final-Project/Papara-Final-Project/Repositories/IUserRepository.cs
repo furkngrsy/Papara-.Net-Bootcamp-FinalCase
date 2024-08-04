@@ -1,13 +1,15 @@
 ﻿using Papara_Final_Project.Models;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Repositories
 {
     public interface IUserRepository
     {
-        User GetUserById(int id);
-        User GetUserByEmail(string email);
-        void AddUser(User user);
-        void UpdateUser(User user);
-        void DeleteUser(int id);
+        Task<bool> EmailExists(string email);
+        Task AddUser(User user);
+        Task<User> GetUserByEmail(string email);
+        Task UpdateUser(User user);
+        Task DeleteUser(int id);
+        Task<User> GetUserById(int id);
     }
 }
