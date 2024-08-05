@@ -1,5 +1,7 @@
-﻿using Papara_Final_Project.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Papara_Final_Project.Models;
 using Papara_Final_Project.Repositories;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.UnitOfWorks
 {
@@ -10,23 +12,20 @@ namespace Papara_Final_Project.UnitOfWorks
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            Products = new ProductRepository(_context);
-            Users = new UserRepository(_context);
-            Categories = new CategoryRepository(_context);
+            Categories = new CategoryRepository(context);
+            Products = new ProductRepository(context);
+            Users = new UserRepository(context);
         }
 
-        public IProductRepository Products { get; private set; }
         public IUserRepository Users { get; private set; }
+
         public ICategoryRepository Categories { get; private set; }
+        public IProductRepository Products { get; private set; }
+        public DbSet<ProductMatchCategory> ProductMatchCategories => _context.ProductMatchCategories;
 
         public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();
-        }
-
-        public void Dispose()
-        {
-            _context.Dispose();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Papara_Final_Project.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class ProductRepository : IProductRepository
@@ -45,5 +46,14 @@ public class ProductRepository : IProductRepository
         {
             _context.Products.Remove(product);
         }
+    }
+
+    public async Task<List<Product>> GetProductsByCategoryId(int categoryId) 
+    {
+        return await _context.ProductMatchCategories
+            .Where(pc => pc.CategoryId == categoryId)
+            .Include(pc => pc.Product)
+            .Select(pc => pc.Product)
+            .ToListAsync();
     }
 }
