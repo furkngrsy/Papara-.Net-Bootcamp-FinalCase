@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Papara_Final_Project.Models;
+using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Services;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Controllers
 {
@@ -16,46 +17,46 @@ namespace Papara_Final_Project.Controllers
             _couponService = couponService;
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllCoupons()
         {
-            var coupons = _couponService.GetAllCoupons();
+            var coupons = await _couponService.GetAllCoupons();
             return Ok(coupons);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetCouponById(int id)
         {
-            var coupon = _couponService.GetCouponById(id);
+            var coupon = await _couponService.GetCouponById(id);
             if (coupon == null)
+            {
                 return NotFound();
+            }
 
             return Ok(coupon);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Add([FromBody] Coupon coupon)
+        public async Task<IActionResult> AddCoupon([FromBody] CouponDTO couponDto)
         {
-            _couponService.AddCoupon(coupon);
+            await _couponService.AddCoupon(couponDto);
             return Ok();
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut]
-        public IActionResult Update([FromBody] Coupon coupon)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCoupon(int id, [FromBody] CouponDTO couponDto)
         {
-            _couponService.UpdateCoupon(coupon);
+            await _couponService.UpdateCoupon(id, couponDto);
             return Ok();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteCoupon(int id)
         {
-            _couponService.DeleteCoupon(id);
+            await _couponService.DeleteCoupon(id);
             return Ok();
         }
     }

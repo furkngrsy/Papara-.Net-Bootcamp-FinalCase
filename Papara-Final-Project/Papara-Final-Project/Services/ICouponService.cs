@@ -1,13 +1,15 @@
-﻿using Papara_Final_Project.Models;
+﻿using Papara_Final_Project.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Services
 {
     public interface ICouponService
     {
-        Coupon GetCouponById(int id);
-        IEnumerable<Coupon> GetAllCoupons();
-        void AddCoupon(Coupon coupon);
-        void UpdateCoupon(Coupon coupon);
-        void DeleteCoupon(int id);
+        Task<IEnumerable<CouponDTO>> GetAllCoupons();
+        Task<CouponDTO> GetCouponById(int id);
+        Task AddCoupon(CouponDTO couponDto);
+        Task UpdateCoupon(int id, CouponDTO couponDto);
+        Task DeleteCoupon(int id);
     }
 }

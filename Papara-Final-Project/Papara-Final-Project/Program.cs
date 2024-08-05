@@ -9,7 +9,6 @@ using Papara_Final_Project.Services;
 using Papara_Final_Project.Validations;
 using Papara_Final_Project.UnitOfWorks;
 using System.Text;
-using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +21,7 @@ builder.Services.AddControllers().AddFluentValidation(fv =>
     fv.RegisterValidatorsFromAssemblyContaining<UserUpdateValidator>();
     fv.RegisterValidatorsFromAssemblyContaining<CategoryValidator>();
     fv.RegisterValidatorsFromAssemblyContaining<ProductValidator>();
+    fv.RegisterValidatorsFromAssemblyContaining<CouponValidator>();
 });
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -76,7 +76,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>(); // Eksik olan ekleme yapýldý
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();

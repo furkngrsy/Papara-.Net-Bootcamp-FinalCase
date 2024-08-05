@@ -1,40 +1,97 @@
-﻿using Papara_Final_Project.Models;
-using Papara_Final_Project.Repositories;
+﻿using FluentValidation;
+using Papara_Final_Project.DTOs;
+using Papara_Final_Project.Models;
+using Papara_Final_Project.UnitOfWorks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Services
 {
     public class CouponService : ICouponService
     {
-        private readonly ICouponRepository _couponRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IValidator<CouponDTO> _couponValidator;
 
-        public CouponService(ICouponRepository couponRepository)
+        public CouponService(IUnitOfWork unitOfWork, IValidator<CouponDTO> couponValidator)
         {
-            _couponRepository = couponRepository;
+            _unitOfWork = unitOfWork;
+            _couponValidator = couponValidator;
         }
 
-        public Coupon GetCouponById(int id)
+        public async Task<IEnumerable<CouponDTO>> GetAllCoupons()
         {
-            return _couponRepository.GetCouponById(id);
+            var coupons = await _unitOfWork.Coupons.GetAllCoupons();
+            return coupons.Select(c => new CouponDTO
+            {
+                Code = c.Code,
+                DiscountAmount = c.DiscountAmount,
+                ExpiryDate = c.ExpiryDate
+            }).ToList();
         }
 
-        public IEnumerable<Coupon> GetAllCoupons()
+        public async Task<CouponDTO> GetCouponById(int id)
         {
-            return _couponRepository.GetAllCoupons();
+            var coupon = await _unitOfWork.Coupons.GetCouponById(id);
+            if (coupon == null)
+            {
+                return null;
+            }
+
+            return new CouponDTO
+            {
+                Code = coupon.Code,
+                DiscountAmount = coupon.DiscountAmount,
+                ExpiryDate = coupon.ExpiryDate
+            };
         }
 
-        public void AddCoupon(Coupon coupon)
+        public async Task AddCoupon(CouponDTO couponDto)
         {
-            _couponRepository.AddCoupon(coupon);
+            var validationResult = await _couponValidator.ValidateAsync(couponDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var coupon = new Coupon
+            {
+                Code = couponDto.Code,
+                DiscountAmount = couponDto.DiscountAmount,
+                ExpiryDate = couponDto.ExpiryDate,
+                IsUsed = false
+            };
+
+            await _unitOfWork.Coupons.AddCoupon(coupon);
+            await _unitOfWork.CompleteAsync();
         }
 
-        public void UpdateCoupon(Coupon coupon)
+        public async Task UpdateCoupon(int id, CouponDTO couponDto)
         {
-            _couponRepository.UpdateCoupon(coupon);
+            var validationResult = await _couponValidator.ValidateAsync(couponDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var coupon = await _unitOfWork.Coupons.GetCouponById(id);
+            if (coupon == null)
+            {
+                throw new KeyNotFoundException("Coupon not found");
+            }
+
+            coupon.Code = couponDto.Code;
+            coupon.DiscountAmount = couponDto.DiscountAmount;
+            coupon.ExpiryDate = couponDto.ExpiryDate;
+
+            await _unitOfWork.Coupons.UpdateCoupon(coupon);
+            await _unitOfWork.CompleteAsync();
         }
 
-        public void DeleteCoupon(int id)
+        public async Task DeleteCoupon(int id)
         {
-            _couponRepository.DeleteCoupon(id);
+            await _unitOfWork.Coupons.DeleteCoupon(id);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }
