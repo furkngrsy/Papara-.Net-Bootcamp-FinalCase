@@ -31,6 +31,10 @@ namespace Papara_Final_Project.Models
                 .HasOne(pc => pc.Category)
                 .WithMany(c => c.ProductMatchCategories)
                 .HasForeignKey(pc => pc.CategoryId);
+
+            modelBuilder.Entity<Coupon>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
         }
     }
 }

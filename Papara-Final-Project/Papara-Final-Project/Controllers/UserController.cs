@@ -64,7 +64,8 @@ namespace Papara_Final_Project.Controllers
             return Ok(userDto);
         }
 
-        [Authorize(Roles = "Admin")]
+        /*[Authorize(Roles = "Admin")]*/
+        [AllowAnonymous]
         [HttpPost("admin_register")]
         public async Task<IActionResult> AdminRegister([FromBody] UserRegisterDTO model)
         {

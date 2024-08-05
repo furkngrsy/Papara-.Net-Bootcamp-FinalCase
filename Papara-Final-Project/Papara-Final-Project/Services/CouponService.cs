@@ -54,6 +54,13 @@ namespace Papara_Final_Project.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
+            // Kupon kodunun unique olduğunu kontrol et
+            var existingCoupon = await _unitOfWork.Coupons.GetCouponByCode(couponDto.Code);
+            if (existingCoupon != null)
+            {
+                throw new ValidationException("Coupon code must be unique.");
+            }
+
             var coupon = new Coupon
             {
                 Code = couponDto.Code,
@@ -78,6 +85,12 @@ namespace Papara_Final_Project.Services
             if (coupon == null)
             {
                 throw new KeyNotFoundException("Coupon not found");
+            }
+
+            var existingCoupon = await _unitOfWork.Coupons.GetCouponByCode(couponDto.Code);
+            if (existingCoupon != null && existingCoupon.Id != id)
+            {
+                throw new ValidationException("Coupon code must be unique.");
             }
 
             coupon.Code = couponDto.Code;
