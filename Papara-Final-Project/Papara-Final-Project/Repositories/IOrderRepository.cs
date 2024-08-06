@@ -1,13 +1,15 @@
 ﻿using Papara_Final_Project.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Repositories
 {
     public interface IOrderRepository
     {
-        Order GetOrderById(int id);
-        IEnumerable<Order> GetAllOrders();
-        void AddOrder(Order order);
-        void UpdateOrder(Order order);
-        void DeleteOrder(int id);
+        Task<IEnumerable<Order>> GetAllOrders();
+        Task<Order> GetOrderById(int id);
+        Task AddOrder(Order order);
+        Task UpdateOrder(Order order);
+        Task DeleteOrder(int id);
     }
 }

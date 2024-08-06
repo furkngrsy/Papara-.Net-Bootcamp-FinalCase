@@ -1,13 +1,15 @@
-﻿using Papara_Final_Project.Models;
+﻿using Papara_Final_Project.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Services
 {
     public interface IOrderService
     {
-        Order GetOrderById(int id);
-        IEnumerable<Order> GetAllOrders();
-        void AddOrder(Order order);
-        void UpdateOrder(Order order);
-        void DeleteOrder(int id);
+        Task<IEnumerable<OrderDTO>> GetAllOrders();
+        Task<OrderDTO> GetOrderById(int id);
+        Task AddOrder(OrderDTO orderDto, int userId); // userId parametresi eklendi
+        Task UpdateOrder(int id, OrderDTO orderDto);
+        Task DeleteOrder(int id);
     }
 }

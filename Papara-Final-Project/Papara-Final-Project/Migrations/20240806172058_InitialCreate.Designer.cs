@@ -12,7 +12,7 @@ using Papara_Final_Project.Models;
 namespace Papara_Final_Project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240805202903_InitialCreate")]
+    [Migration("20240806172058_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -94,6 +94,9 @@ namespace Papara_Final_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("PointsUsed")
                         .HasColumnType("decimal(18,2)");
 
@@ -125,6 +128,9 @@ namespace Papara_Final_Project.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -160,8 +166,8 @@ namespace Papara_Final_Project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PointsBalance")
-                        .HasColumnType("int");
+                    b.Property<decimal>("PointsBalance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Role")
                         .IsRequired()

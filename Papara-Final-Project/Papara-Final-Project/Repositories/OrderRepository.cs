@@ -1,4 +1,7 @@
-﻿using Papara_Final_Project.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Papara_Final_Project.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Repositories
 {
@@ -11,35 +14,33 @@ namespace Papara_Final_Project.Repositories
             _context = context;
         }
 
-        public Order GetOrderById(int id)
+        public async Task<IEnumerable<Order>> GetAllOrders()
         {
-            return _context.Orders.Find(id);
+            return await _context.Orders.Include(o => o.OrderDetails).ToListAsync();
         }
 
-        public IEnumerable<Order> GetAllOrders()
+        public async Task<Order> GetOrderById(int id)
         {
-            return _context.Orders.ToList();
+            return await _context.Orders.Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public void AddOrder(Order order)
+        public async Task AddOrder(Order order)
         {
-            _context.Orders.Add(order);
-            _context.SaveChanges();
+            await _context.Orders.AddAsync(order);
         }
 
-        public void UpdateOrder(Order order)
+        public async Task UpdateOrder(Order order)
         {
             _context.Orders.Update(order);
-            _context.SaveChanges();
         }
 
-        public void DeleteOrder(int id)
+        public async Task DeleteOrder(int id)
         {
-            var order = _context.Orders.Find(id);
+            var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
                 _context.Orders.Remove(order);
-                _context.SaveChanges();
             }
         }
     }

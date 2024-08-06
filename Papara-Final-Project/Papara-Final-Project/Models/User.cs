@@ -8,7 +8,8 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; }
-        public decimal WalletBalance { get; set; }
-        public int PointsBalance { get; set; }
+        public decimal WalletBalance { get; set; } // Cüzdan bakiyesi
+        public decimal PointsBalance { get; set; } // Puan bakiyesi
     }
+
 }

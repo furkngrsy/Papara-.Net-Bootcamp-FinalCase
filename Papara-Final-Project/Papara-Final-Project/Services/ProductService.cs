@@ -1,4 +1,9 @@
 ﻿using Papara_Final_Project.UnitOfWorks;
+using Papara_Final_Project.DTOs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Papara_Final_Project.Services;
 
 public class ProductService : IProductService
 {
@@ -105,5 +110,17 @@ public class ProductService : IProductService
     {
         await _unitOfWork.Products.DeleteProduct(id);
         await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task<bool> IsProductAvailable(int productId, int quantity)
+    {
+        var product = await _unitOfWork.Products.GetProductById(productId);
+        return product != null && product.Stock >= quantity;
+    }
+
+    public async Task<decimal> GetProductPriceById(int productId)
+    {
+        var product = await _unitOfWork.Products.GetProductById(productId);
+        return product?.Price ?? 0;
     }
 }

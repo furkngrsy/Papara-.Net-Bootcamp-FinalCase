@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Papara_Final_Project.Models;
+using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Services;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Controllers
 {
@@ -16,46 +18,62 @@ namespace Papara_Final_Project.Controllers
             _orderService = orderService;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllOrders()
         {
-            var orders = _orderService.GetAllOrders();
+            var orders = await _orderService.GetAllOrders();
             return Ok(orders);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = _orderService.GetOrderById(id);
+            var order = await _orderService.GetOrderById(id);
             if (order == null)
+            {
                 return NotFound();
+            }
 
             return Ok(order);
         }
 
         [Authorize]
         [HttpPost]
-        public IActionResult Add([FromBody] Order order)
+        public async Task<IActionResult> AddOrder([FromBody] OrderDTO orderDto)
         {
-            _orderService.AddOrder(order);
-            return Ok();
+            try
+            {
+                // Token'dan kullanıcı ID'sini alıyoruz
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+
+                await _orderService.AddOrder(orderDto, int.Parse(userId));
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        [Authorize]
-        [HttpPut]
-        public IActionResult Update([FromBody] Order order)
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderDTO orderDto)
         {
-            _orderService.UpdateOrder(order);
+            await _orderService.UpdateOrder(id, orderDto);
             return Ok();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            _orderService.DeleteOrder(id);
+            await _orderService.DeleteOrder(id);
             return Ok();
         }
     }

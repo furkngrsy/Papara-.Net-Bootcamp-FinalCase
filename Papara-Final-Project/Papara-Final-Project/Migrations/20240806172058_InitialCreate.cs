@@ -73,7 +73,7 @@ namespace Papara_Final_Project.Migrations
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     WalletBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PointsBalance = table.Column<int>(type: "int", nullable: false)
+                    PointsBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,9 +112,10 @@ namespace Papara_Final_Project.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CouponAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CouponCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PointsUsed = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    CouponAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PointsUsed = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -135,6 +136,7 @@ namespace Papara_Final_Project.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
