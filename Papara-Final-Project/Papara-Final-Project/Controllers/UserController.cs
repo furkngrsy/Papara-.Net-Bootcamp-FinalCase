@@ -54,7 +54,7 @@ namespace Papara_Final_Project.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
             var userDto = await _userService.Authenticate(model.Email, model.Password);
 

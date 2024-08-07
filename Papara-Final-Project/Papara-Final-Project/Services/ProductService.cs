@@ -53,7 +53,6 @@ public class ProductService : IProductService
 
     public async Task AddProduct(ProductDTO productDto)
     {
-        // Category var mı kontrolü
         var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
         if (categories.Count != productDto.CategoryIds.Count)
         {
@@ -84,7 +83,6 @@ public class ProductService : IProductService
             throw new KeyNotFoundException("Product not found");
         }
 
-        // Category var mı kontrolü
         var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
         if (categories.Count != productDto.CategoryIds.Count)
         {
@@ -99,7 +97,6 @@ public class ProductService : IProductService
         product.RewardRate = productDto.RewardRate;
         product.MaxReward = productDto.MaxReward;
 
-        // Kategorileri güncelle
         product.ProductMatchCategories = productDto.CategoryIds.Select(cid => new ProductMatchCategory { ProductId = product.Id, CategoryId = cid }).ToList();
 
         await _unitOfWork.Products.UpdateProduct(product);

@@ -83,6 +83,9 @@ namespace Papara_Final_Project.Services
                 decimal productPrice = product.Price;
                 totalProductAmount += productPrice * detail.Quantity;
 
+                product.Stock -= detail.Quantity;
+                await _productService.UpdateProduct(detail.ProductId, product);
+
                 orderDetails.Add(new OrderDetail
                 {
                     ProductId = detail.ProductId,
@@ -91,7 +94,7 @@ namespace Papara_Final_Project.Services
                 });
             }
 
-            // Kupon ve puan kullanımı
+
             decimal couponAmount = 0;
             if (!string.IsNullOrEmpty(orderDto.CouponCode))
             {
@@ -100,7 +103,14 @@ namespace Papara_Final_Project.Services
                 {
                     throw new Exception("Invalid coupon code.");
                 }
+
+                if (coupon.IsUsed == true)
+                {
+                    throw new Exception("This coupon code is not available.");
+                }
                 couponAmount = coupon.DiscountAmount;
+                coupon.IsUsed = true;
+                await _couponRepository.UpdateCoupon(coupon);
             }
 
             var user = await _userRepository.GetUserById(userId);
@@ -109,12 +119,18 @@ namespace Papara_Final_Project.Services
                 throw new Exception("User not found.");
             }
 
-            decimal pointsUsed = user.PointsBalance;
-            decimal amountToPay = totalProductAmount - couponAmount - pointsUsed;
-            if (amountToPay < 0)
+            decimal pointsUsed = 0;
+            decimal amountToPay = totalProductAmount - couponAmount;
+
+            if (amountToPay > 0)
             {
-                pointsUsed += amountToPay; // Kullanılabilecek maksimum puanı ayarlıyoruz
-                amountToPay = 0;
+                pointsUsed = user.PointsBalance;
+                amountToPay -= pointsUsed;
+                if (amountToPay < 0)
+                {
+                    pointsUsed += amountToPay; 
+                    amountToPay = 0;
+                }
             }
 
             var order = new Order
@@ -131,21 +147,24 @@ namespace Papara_Final_Project.Services
             await _orderRepository.AddOrder(order);
             await _unitOfWork.CompleteAsync();
 
-            // Kullanıcının cüzdan bakiyesinden puan düşme
             user.PointsBalance -= pointsUsed;
             if (user.PointsBalance < 0)
             {
                 user.PointsBalance = 0;
             }
 
-            // Kredi kartı ile ödenen tutar üzerinden puan kazanma
+            int orderDetailCount = orderDetails.Count;
+            decimal couponPerProduct = couponAmount / orderDetailCount;
+            decimal pointsPerProduct = pointsUsed / orderDetailCount;
+
             decimal pointsEarned = 0;
             foreach (var detail in orderDetails)
             {
                 var product = await _productService.GetProductById(detail.ProductId);
                 if (product != null)
                 {
-                    decimal productPoints = (detail.Price * detail.Quantity) * (product.RewardRate / 100);
+                    decimal netPrice = (detail.Price * detail.Quantity) - pointsPerProduct - couponPerProduct;
+                    decimal productPoints = (netPrice) * (product.RewardRate / 100);
                     pointsEarned += productPoints > product.MaxReward ? product.MaxReward : productPoints;
                 }
             }
@@ -153,32 +172,6 @@ namespace Papara_Final_Project.Services
             user.PointsBalance += pointsEarned;
 
             await _userRepository.UpdateUser(user);
-            await _unitOfWork.CompleteAsync();
-        }
-
-        public async Task UpdateOrder(int id, OrderDTO orderDto)
-        {
-            var validationResult = await _orderValidator.ValidateAsync(orderDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
-            var order = await _orderRepository.GetOrderById(id);
-            if (order == null)
-            {
-                throw new KeyNotFoundException("Order not found");
-            }
-
-            order.CouponCode = orderDto.CouponCode;
-            order.OrderDetails = await Task.WhenAll(orderDto.OrderDetails.Select(async od => new OrderDetail
-            {
-                ProductId = od.ProductId,
-                Quantity = od.Quantity,
-                Price = await _productService.GetProductPriceById(od.ProductId)
-            }));
-
-            await _orderRepository.UpdateOrder(order);
             await _unitOfWork.CompleteAsync();
         }
 

@@ -5,7 +5,7 @@
     public decimal Price { get; set; }
     public bool IsAvailable { get; set; }
     public int Stock { get; set; }
-    public decimal RewardRate { get; set; } // Yüzdelik puan miktarı
-    public decimal MaxReward { get; set; } // Maksimum puan miktarı
+    public decimal RewardRate { get; set; } 
+    public decimal MaxReward { get; set; } 
     public List<int> CategoryIds { get; set; }
 }

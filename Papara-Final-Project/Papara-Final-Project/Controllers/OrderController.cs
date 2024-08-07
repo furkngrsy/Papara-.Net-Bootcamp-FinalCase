@@ -18,7 +18,7 @@ namespace Papara_Final_Project.Controllers
             _orderService = orderService;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
@@ -45,7 +45,6 @@ namespace Papara_Final_Project.Controllers
         {
             try
             {
-                // Token'dan kullanıcı ID'sini alıyoruz
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (userId == null)
                 {
@@ -59,14 +58,6 @@ namespace Papara_Final_Project.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderDTO orderDto)
-        {
-            await _orderService.UpdateOrder(id, orderDto);
-            return Ok();
         }
 
         [Authorize(Roles = "Admin")]
