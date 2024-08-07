@@ -21,9 +21,11 @@ namespace Papara_Final_Project.Repositories
 
         public async Task<Order> GetOrderById(int id)
         {
-            return await _context.Orders.Include(o => o.OrderDetails)
+            return await _context.Orders
+                .Include(o => o.OrderDetails)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
+
 
         public async Task AddOrder(Order order)
         {
@@ -42,6 +44,13 @@ namespace Papara_Final_Project.Repositories
             {
                 _context.Orders.Remove(order);
             }
+        }
+        public async Task<IEnumerable<Order>> GetOrdersByUserId(int userId)
+        {
+            return await _context.Orders
+                .Where(o => o.UserId == userId)
+                .Include(o => o.OrderDetails)
+                .ToListAsync();
         }
     }
 }

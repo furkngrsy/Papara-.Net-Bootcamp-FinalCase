@@ -11,5 +11,6 @@ namespace Papara_Final_Project.Repositories
         Task AddOrder(Order order);
         Task UpdateOrder(Order order);
         Task DeleteOrder(int id);
+        Task<IEnumerable<Order>> GetOrdersByUserId(int userId);
     }
 }

@@ -45,7 +45,7 @@ namespace Papara_Final_Project.Services
             }).ToList();
         }
 
-        public async Task<OrderDTO> GetOrderById(int id)
+        public async Task<OrderWithDetailsDTO> GetOrderById(int id) 
         {
             var order = await _orderRepository.GetOrderById(id);
             if (order == null)
@@ -53,16 +53,50 @@ namespace Papara_Final_Project.Services
                 return null;
             }
 
-            return new OrderDTO
+            var orderDetails = order.OrderDetails.Select(od => new OrderDetailDTO
             {
+                ProductId = od.ProductId,
+                Quantity = od.Quantity
+            }).ToList();
+
+            return new OrderWithDetailsDTO
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                TotalAmount = order.TotalAmount,
                 CouponCode = order.CouponCode,
-                OrderDetails = order.OrderDetails.Select(od => new OrderDetailDTO
-                {
-                    ProductId = od.ProductId,
-                    Quantity = od.Quantity
-                }).ToList()
+                CouponAmount = order.CouponAmount,
+                PointsUsed = order.PointsUsed,
+                OrderDate = order.OrderDate
             };
         }
+
+        public async Task<List<OrderDetailExtendedDTO>> GetOrderProductDetails(int id) 
+        {
+            var order = await _orderRepository.GetOrderById(id);
+            if (order == null)
+            {
+                return null;
+            }
+
+            var productDetails = new List<OrderDetailExtendedDTO>();
+            foreach (var detail in order.OrderDetails)
+            {
+                var product = await _productService.GetProductById(detail.ProductId);
+                productDetails.Add(new OrderDetailExtendedDTO
+                {
+                    ProductId = detail.ProductId,
+                    ProductName = product.Name,
+                    Price = detail.Price,
+                    Quantity = detail.Quantity,
+                    TotalPrice = detail.Price * detail.Quantity
+                });
+            }
+
+            return productDetails;
+        }
+
+
 
         public async Task AddOrder(OrderDTO orderDto, PaymentDTO paymentDto, int userId)
         {
@@ -220,5 +254,6 @@ namespace Papara_Final_Project.Services
             await _orderRepository.DeleteOrder(id);
             await _unitOfWork.CompleteAsync();
         }
+
     }
 }

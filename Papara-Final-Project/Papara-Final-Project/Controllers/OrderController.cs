@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Papara_Final_Project.DTOs;
+using Papara_Final_Project.Models;
 using Papara_Final_Project.Services;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -68,6 +69,60 @@ namespace Papara_Final_Project.Controllers
             await _orderService.DeleteOrder(id);
             return Ok();
         }
+
+        [Authorize]
+        [HttpGet("order-details/{orderId}")]
+        public async Task<IActionResult> GetOrderDetails(int orderId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var order = await _orderService.GetOrderById(orderId);
+
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            if (order.UserId != userId)
+            {
+                return Unauthorized("You can't see this order.");
+
+            }
+
+            return Ok(order);
+        }
+
+        [Authorize]
+        [HttpGet("order-product-details/{orderId}")]
+        public async Task<IActionResult> GetOrderProductDetails(int orderId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var orderDetails = await _orderService.GetOrderProductDetails(orderId);
+
+            if (orderDetails == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            var order = await _orderService.GetOrderById(orderId);
+
+            if (order.UserId != userId)
+            {
+                return Unauthorized("You can't see this order.");
+            }
+
+            return Ok(orderDetails);
+        }
+
     }
     public class OrderRequestDTO
     {
