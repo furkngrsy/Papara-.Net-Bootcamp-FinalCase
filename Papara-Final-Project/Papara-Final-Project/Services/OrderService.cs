@@ -17,15 +17,17 @@ namespace Papara_Final_Project.Services
         private readonly IUserRepository _userRepository;
         private readonly ICouponRepository _couponRepository;
         private readonly IValidator<OrderDTO> _orderValidator;
+        private readonly IPaymentService _paymentService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public OrderService(IOrderRepository orderRepository, IProductService productService, IUserRepository userRepository, ICouponRepository couponRepository, IValidator<OrderDTO> orderValidator, IUnitOfWork unitOfWork)
+        public OrderService(IOrderRepository orderRepository, IProductService productService, IUserRepository userRepository, ICouponRepository couponRepository, IValidator<OrderDTO> orderValidator, IPaymentService paymentService, IUnitOfWork unitOfWork)
         {
             _orderRepository = orderRepository;
             _productService = productService;
             _userRepository = userRepository;
             _couponRepository = couponRepository;
             _orderValidator = orderValidator;
+            _paymentService = paymentService;
             _unitOfWork = unitOfWork;
         }
 
@@ -62,7 +64,7 @@ namespace Papara_Final_Project.Services
             };
         }
 
-        public async Task AddOrder(OrderDTO orderDto, int userId)
+        public async Task AddOrder(OrderDTO orderDto, PaymentDTO paymentDto, int userId)
         {
             var validationResult = await _orderValidator.ValidateAsync(orderDto);
             if (!validationResult.IsValid)
@@ -83,6 +85,7 @@ namespace Papara_Final_Project.Services
                 decimal productPrice = product.Price;
                 totalProductAmount += productPrice * detail.Quantity;
 
+                // Ürün stoğunu düşürme
                 product.Stock -= detail.Quantity;
                 await _productService.UpdateProduct(detail.ProductId, product);
 
@@ -94,7 +97,7 @@ namespace Papara_Final_Project.Services
                 });
             }
 
-
+            // Kupon ve puan kullanımı
             decimal couponAmount = 0;
             if (!string.IsNullOrEmpty(orderDto.CouponCode))
             {
@@ -102,11 +105,6 @@ namespace Papara_Final_Project.Services
                 if (coupon == null)
                 {
                     throw new Exception("Invalid coupon code.");
-                }
-
-                if (coupon.IsUsed == true)
-                {
-                    throw new Exception("This coupon code is not available.");
                 }
                 couponAmount = coupon.DiscountAmount;
                 coupon.IsUsed = true;
@@ -122,14 +120,25 @@ namespace Papara_Final_Project.Services
             decimal pointsUsed = 0;
             decimal amountToPay = totalProductAmount - couponAmount;
 
+            // Puan kullanımı
             if (amountToPay > 0)
             {
                 pointsUsed = user.PointsBalance;
                 amountToPay -= pointsUsed;
                 if (amountToPay < 0)
                 {
-                    pointsUsed += amountToPay; 
+                    pointsUsed += amountToPay; // Kullanılabilecek maksimum puanı ayarlıyoruz
                     amountToPay = 0;
+                }
+            }
+
+            // Eğer hala ödenmesi gereken tutar varsa, ödeme işlemi yapılır
+            if (amountToPay > 0)
+            {
+                var paymentResult = await _paymentService.ProcessPayment(paymentDto);
+                if (!paymentResult)
+                {
+                    throw new Exception("Payment failed. Please check your card details.");
                 }
             }
 
@@ -147,18 +156,21 @@ namespace Papara_Final_Project.Services
             await _orderRepository.AddOrder(order);
             await _unitOfWork.CompleteAsync();
 
+            // Kullanıcının cüzdan bakiyesinden puan düşme
             user.PointsBalance -= pointsUsed;
             if (user.PointsBalance < 0)
             {
                 user.PointsBalance = 0;
             }
 
+            // Kupon ve puanların ürünlere eşit dağıtılması
             int orderDetailCount = orderDetails.Count;
             decimal couponPerProduct = couponAmount / orderDetailCount;
             decimal pointsPerProduct = pointsUsed / orderDetailCount;
 
+            // Kredi kartı ile ödenen tutar üzerinden puan kazanma
             decimal pointsEarned = 0;
-            foreach (var detail in orderDetails)
+            foreach (var detail in orderDetails.OrderByDescending(od => od.Price * od.Quantity))
             {
                 var product = await _productService.GetProductById(detail.ProductId);
                 if (product != null)
@@ -167,11 +179,39 @@ namespace Papara_Final_Project.Services
                     decimal productPoints = (netPrice) * (product.RewardRate / 100);
                     pointsEarned += productPoints > product.MaxReward ? product.MaxReward : productPoints;
                 }
+                pointsPerProduct = 0;
+                couponPerProduct = 0;
             }
 
             user.PointsBalance += pointsEarned;
 
             await _userRepository.UpdateUser(user);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task UpdateOrder(int id, OrderDTO orderDto)
+        {
+            var validationResult = await _orderValidator.ValidateAsync(orderDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            var order = await _orderRepository.GetOrderById(id);
+            if (order == null)
+            {
+                throw new KeyNotFoundException("Order not found");
+            }
+
+            order.CouponCode = orderDto.CouponCode;
+            order.OrderDetails = await Task.WhenAll(orderDto.OrderDetails.Select(async od => new OrderDetail
+            {
+                ProductId = od.ProductId,
+                Quantity = od.Quantity,
+                Price = await _productService.GetProductPriceById(od.ProductId)
+            }));
+
+            await _orderRepository.UpdateOrder(order);
             await _unitOfWork.CompleteAsync();
         }
 

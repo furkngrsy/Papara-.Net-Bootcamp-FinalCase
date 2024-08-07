@@ -13,6 +13,7 @@ namespace Papara_Final_Project.Controllers
     {
         private readonly IOrderService _orderService;
 
+
         public OrderController(IOrderService orderService)
         {
             _orderService = orderService;
@@ -41,7 +42,7 @@ namespace Papara_Final_Project.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddOrder([FromBody] OrderDTO orderDto)
+        public async Task<IActionResult> AddOrder([FromBody] OrderRequestDTO orderDto)
         {
             try
             {
@@ -51,7 +52,7 @@ namespace Papara_Final_Project.Controllers
                     return Unauthorized();
                 }
 
-                await _orderService.AddOrder(orderDto, int.Parse(userId));
+                await _orderService.AddOrder(orderDto.Order, orderDto.Payment, int.Parse(userId));
                 return Ok();
             }
             catch (Exception ex)
@@ -67,5 +68,10 @@ namespace Papara_Final_Project.Controllers
             await _orderService.DeleteOrder(id);
             return Ok();
         }
+    }
+    public class OrderRequestDTO
+    {
+        public OrderDTO Order { get; set; }
+        public PaymentDTO Payment { get; set; }
     }
 }

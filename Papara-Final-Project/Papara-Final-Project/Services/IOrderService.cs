@@ -8,7 +8,7 @@ namespace Papara_Final_Project.Services
     {
         Task<IEnumerable<OrderDTO>> GetAllOrders();
         Task<OrderDTO> GetOrderById(int id);
-        Task AddOrder(OrderDTO orderDto, int userId); 
+        Task AddOrder(OrderDTO orderDto, PaymentDTO paymentDTO, int userId); 
         Task DeleteOrder(int id);
     }
 }

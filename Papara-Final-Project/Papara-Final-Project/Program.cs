@@ -94,6 +94,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 builder.Services.AddScoped<IValidator<UserRegisterDTO>, UserRegisterValidator>();
 builder.Services.AddScoped<IValidator<UserUpdateDTO>, UserUpdateValidator>();
