@@ -109,11 +109,11 @@ namespace Papara_Final_Project.Services
             decimal totalProductAmount = 0;
             var orderDetails = new List<OrderDetail>();
 
-            foreach (var detail in orderDto.OrderDetails)
+            foreach (var detail in orderDto.OrderDetails)   
             {
                 if (!await _productService.IsProductAvailable(detail.ProductId, detail.Quantity))
                 {
-                    throw new Exception($"Product with ID {detail.ProductId} is not available in the requested quantity.");
+                    throw new Exception($"Product with ID {detail.ProductId} is not available.");
                 }
                 var product = await _productService.GetProductById(detail.ProductId);
                 decimal productPrice = product.Price;

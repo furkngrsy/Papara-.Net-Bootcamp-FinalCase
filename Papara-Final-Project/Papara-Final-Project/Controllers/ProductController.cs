@@ -55,4 +55,20 @@ public class ProductController : ControllerBase
         await _productService.DeleteProduct(id);
         return Ok();
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/stock")]
+    public async Task<IActionResult> UpdateStock(int id, [FromBody] int newStock)
+    {
+        await _productService.UpdateProductStock(id, newStock);
+        return Ok("Product stock updated successfully.");
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/availability")]
+    public async Task<IActionResult> UpdateAvailability(int id, [FromBody] bool isAvailable)
+    {
+        await _productService.UpdateProductAvailability(id, isAvailable);
+        return Ok("Product availability updated successfully.");
+    }
 }

@@ -7,6 +7,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace Papara_Final_Project.Controllers
 {
@@ -131,5 +132,20 @@ namespace Papara_Final_Project.Controllers
             await _userService.Update(user);
             return Ok();
         }
+
+        [Authorize]
+        [HttpGet("UserPoints")]
+        public async Task<IActionResult> GetUserPoints()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var points = await _userService.GetUserPoints(userId);
+            return Ok(new { Points = points });
+        }
+
     }
 }

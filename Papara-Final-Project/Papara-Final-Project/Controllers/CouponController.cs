@@ -17,6 +17,7 @@ namespace Papara_Final_Project.Controllers
             _couponService = couponService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAllCoupons()
         {
@@ -24,6 +25,7 @@ namespace Papara_Final_Project.Controllers
             return Ok(coupons);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCouponById(int id)
         {

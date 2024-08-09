@@ -112,12 +112,40 @@ public class ProductService : IProductService
     public async Task<bool> IsProductAvailable(int productId, int quantity)
     {
         var product = await _unitOfWork.Products.GetProductById(productId);
-        return product != null && product.Stock >= quantity;
+        return product != null && product.Stock >= quantity && product.IsAvailable; // ürün mevcut mu?, ürünün stoğu siparişte istenilen sayı için yeterli mi?, ürün satışa açık mı?
     }
 
     public async Task<decimal> GetProductPriceById(int productId)
     {
         var product = await _unitOfWork.Products.GetProductById(productId);
         return product?.Price ?? 0;
+    }
+
+    public async Task UpdateProductStock(int productId, int newStock)
+    {
+        var product = await _unitOfWork.Products.GetProductById(productId);
+        if (product == null)
+        {
+            throw new KeyNotFoundException("Product not found");
+        }
+
+        product.Stock = newStock;
+
+        await _unitOfWork.Products.UpdateProduct(product);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task UpdateProductAvailability(int productId, bool isAvailable)
+    {
+        var product = await _unitOfWork.Products.GetProductById(productId);
+        if (product == null)
+        {
+            throw new KeyNotFoundException("Product not found");
+        }
+
+        product.IsAvailable = isAvailable;
+
+        await _unitOfWork.Products.UpdateProduct(product);
+        await _unitOfWork.CompleteAsync();
     }
 }

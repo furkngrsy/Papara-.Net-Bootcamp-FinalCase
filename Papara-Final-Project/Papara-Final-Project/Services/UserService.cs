@@ -85,5 +85,17 @@ namespace Papara_Final_Project.Services
         {
             return await _unitOfWork.Users.GetUserById(id);
         }
+
+        public async Task<decimal> GetUserPoints(int userId)
+        {
+            var user = await _unitOfWork.Users.GetUserById(userId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+
+            return user.PointsBalance;
+        }
+
     }
 }
