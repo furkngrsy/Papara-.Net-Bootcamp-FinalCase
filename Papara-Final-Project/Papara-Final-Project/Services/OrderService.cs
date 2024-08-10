@@ -255,5 +255,57 @@ namespace Papara_Final_Project.Services
             await _unitOfWork.CompleteAsync();
         }
 
+        public async Task<IEnumerable<OrderWithDetailsDTO>> GetActiveOrders(int userId)
+        {
+            var orders = await _orderRepository.GetAllOrders();
+            var activeOrders = orders
+                .Where(o => o.UserId == userId && o.OrderDate >= DateTime.Now.AddDays(-10))
+                .ToList();
+
+            if (!activeOrders.Any())
+            {
+                return null;
+            }
+
+            var activeOrderDtos = activeOrders.Select(o => new OrderWithDetailsDTO
+            {
+                Id = o.Id,
+                UserId = o.UserId,
+                TotalAmount = o.TotalAmount,
+                CouponCode = o.CouponCode,
+                CouponAmount = o.CouponAmount,
+                PointsUsed = o.PointsUsed,
+                OrderDate = o.OrderDate,
+            }).ToList();
+
+            return activeOrderDtos;
+        }
+
+        public async Task<IEnumerable<OrderWithDetailsDTO>> GetInactiveOrders(int userId)
+        {
+            var orders = await _orderRepository.GetAllOrders();
+            var inactiveOrders = orders
+                .Where(o => o.UserId == userId && o.OrderDate < DateTime.Now.AddDays(-10))
+                .ToList();
+
+            if (!inactiveOrders.Any())
+            {
+                return null;
+            }
+
+            var inactiveOrderDtos = inactiveOrders.Select(o => new OrderWithDetailsDTO
+            {
+                Id = o.Id,
+                UserId = o.UserId,
+                TotalAmount = o.TotalAmount,
+                CouponCode = o.CouponCode,
+                CouponAmount = o.CouponAmount,
+                PointsUsed = o.PointsUsed,
+                OrderDate = o.OrderDate,
+            }).ToList();
+
+            return inactiveOrderDtos;
+        }
+
     }
 }

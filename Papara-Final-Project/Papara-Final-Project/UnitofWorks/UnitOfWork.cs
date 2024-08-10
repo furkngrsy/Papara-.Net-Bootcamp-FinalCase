@@ -15,13 +15,13 @@ namespace Papara_Final_Project.UnitOfWorks
             Categories = new CategoryRepository(context);
             Products = new ProductRepository(context);
             Users = new UserRepository(context);
-            Coupons = new CouponRepository(context); // ICouponRepository ekleniyor
+            Coupons = new CouponRepository(context); 
         }
 
         public ICategoryRepository Categories { get; private set; }
         public IProductRepository Products { get; private set; }
         public IUserRepository Users { get; private set; }
-        public ICouponRepository Coupons { get; private set; } // ICouponRepository ekleniyor
+        public ICouponRepository Coupons { get; private set; } 
         public DbSet<ProductMatchCategory> ProductMatchCategories => _context.ProductMatchCategories;
 
         public async Task<int> CompleteAsync()

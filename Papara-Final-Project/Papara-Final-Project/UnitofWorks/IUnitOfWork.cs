@@ -10,7 +10,7 @@ namespace Papara_Final_Project.UnitOfWorks
         ICategoryRepository Categories { get; }
         IProductRepository Products { get; }
         IUserRepository Users { get; }
-        ICouponRepository Coupons { get; } // ICouponRepository ekleniyor
+        ICouponRepository Coupons { get; } 
         DbSet<ProductMatchCategory> ProductMatchCategories { get; }
         Task<int> CompleteAsync();
     }

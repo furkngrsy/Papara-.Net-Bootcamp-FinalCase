@@ -12,5 +12,8 @@ namespace Papara_Final_Project.Services
         Task AddOrder(OrderDTO orderDto, PaymentDTO paymentDto, int userId);
         Task UpdateOrder(int id, OrderDTO orderDto);
         Task DeleteOrder(int id);
+        Task<IEnumerable<OrderWithDetailsDTO>> GetActiveOrders(int userId);
+        Task<IEnumerable<OrderWithDetailsDTO>> GetInactiveOrders(int userId);
+
     }
 }

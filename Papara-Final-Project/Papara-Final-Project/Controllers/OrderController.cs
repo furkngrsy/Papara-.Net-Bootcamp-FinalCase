@@ -123,6 +123,43 @@ namespace Papara_Final_Project.Controllers
             return Ok(orderDetails);
         }
 
+        [Authorize]
+        [HttpGet("active-orders")]
+        public async Task<IActionResult> GetActiveOrders()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var activeOrder = await _orderService.GetActiveOrders(userId);
+            if (activeOrder == null)
+            {
+                return NotFound();
+            }
+            return Ok(activeOrder);
+        }
+
+        [Authorize]
+        [HttpGet("inactive-orders")]
+        public async Task<IActionResult> GetInactiveOrders()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var inactiveOrder = await _orderService.GetInactiveOrders(userId);
+            if (inactiveOrder == null)
+            {
+                return NotFound();
+            }
+            return Ok(inactiveOrder);
+        }
+
     }
     public class OrderRequestDTO
     {
