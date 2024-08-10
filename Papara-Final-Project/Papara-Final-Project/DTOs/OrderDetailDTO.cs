@@ -28,16 +28,5 @@ namespace Papara_Final_Project.DTOs
         public decimal PointsUsed { get; set; }
         public DateTime OrderDate { get; set; }
     }
-
-    public class OrderWithProductDetailsDTO
-    {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public decimal TotalAmount { get; set; }
-        public string CouponCode { get; set; }
-        public decimal CouponAmount { get; set; }
-        public decimal PointsUsed { get; set; }
-        public DateTime OrderDate { get; set; }
-        public List<OrderDetailExtendedDTO> OrderDetails { get; set; }
-    }
+    
 }

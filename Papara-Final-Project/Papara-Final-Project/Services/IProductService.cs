@@ -13,7 +13,7 @@ namespace Papara_Final_Project.Services
         Task DeleteProduct(int id);
         Task<bool> IsProductAvailable(int productId, int quantity);
         Task<decimal> GetProductPriceById(int productId);
-        Task UpdateProductStock(int productId, int newStock); // Yeni metod
-        Task UpdateProductAvailability(int productId, bool isAvailable); // Yeni metod
+        Task UpdateProductStock(int productId, int newStock); 
+        Task UpdateProductAvailability(int productId, bool isAvailable); 
     }
 }

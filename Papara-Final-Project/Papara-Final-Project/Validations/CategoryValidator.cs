@@ -15,3 +15,4 @@ public class CategoryValidator : AbstractValidator<CategoryDTO>
             .NotEmpty().WithMessage("Category tag is required.");
     }
 }
+    

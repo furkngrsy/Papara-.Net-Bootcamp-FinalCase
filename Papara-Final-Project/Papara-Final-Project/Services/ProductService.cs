@@ -1,4 +1,5 @@
-﻿using Papara_Final_Project.UnitOfWorks;
+﻿using FluentValidation;
+using Papara_Final_Project.UnitOfWorks;
 using Papara_Final_Project.DTOs;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +9,12 @@ using Papara_Final_Project.Services;
 public class ProductService : IProductService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IValidator<ProductDTO> _productValidator; 
 
-    public ProductService(IUnitOfWork unitOfWork)
+    public ProductService(IUnitOfWork unitOfWork, IValidator<ProductDTO> productValidator)
     {
         _unitOfWork = unitOfWork;
+        _productValidator = productValidator; 
     }
 
     public async Task<IEnumerable<ProductDTO>> GetAllProducts()
@@ -53,10 +56,16 @@ public class ProductService : IProductService
 
     public async Task AddProduct(ProductDTO productDto)
     {
+        var validationResult = await _productValidator.ValidateAsync(productDto); 
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors); 
+        }
+
         var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
         if (categories.Count != productDto.CategoryIds.Count)
         {
-            throw new Exception("Category do not exist.");
+            throw new Exception("One or more categories do not exist."); 
         }
 
         var product = new Product
@@ -77,16 +86,22 @@ public class ProductService : IProductService
 
     public async Task UpdateProduct(int id, ProductDTO productDto)
     {
+        var validationResult = await _productValidator.ValidateAsync(productDto); 
+        if (!validationResult.IsValid)
+        {
+            throw new ValidationException(validationResult.Errors); 
+        }
+
         var product = await _unitOfWork.Products.GetProductById(id);
         if (product == null)
         {
-            throw new KeyNotFoundException("Product not found");
+            throw new KeyNotFoundException("Product not found"); 
         }
 
         var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
         if (categories.Count != productDto.CategoryIds.Count)
         {
-            throw new Exception("Category do not exist.");
+            throw new Exception("One or more categories do not exist."); 
         }
 
         product.Name = productDto.Name;
@@ -112,7 +127,7 @@ public class ProductService : IProductService
     public async Task<bool> IsProductAvailable(int productId, int quantity)
     {
         var product = await _unitOfWork.Products.GetProductById(productId);
-        return product != null && product.Stock >= quantity && product.IsAvailable; // ürün mevcut mu?, ürünün stoğu siparişte istenilen sayı için yeterli mi?, ürün satışa açık mı?
+        return product != null && product.Stock >= quantity && product.IsAvailable; 
     }
 
     public async Task<decimal> GetProductPriceById(int productId)
@@ -126,7 +141,7 @@ public class ProductService : IProductService
         var product = await _unitOfWork.Products.GetProductById(productId);
         if (product == null)
         {
-            throw new KeyNotFoundException("Product not found");
+            throw new KeyNotFoundException("Product not found"); 
         }
 
         product.Stock = newStock;
@@ -140,7 +155,7 @@ public class ProductService : IProductService
         var product = await _unitOfWork.Products.GetProductById(productId);
         if (product == null)
         {
-            throw new KeyNotFoundException("Product not found");
+            throw new KeyNotFoundException("Product not found"); 
         }
 
         product.IsAvailable = isAvailable;
