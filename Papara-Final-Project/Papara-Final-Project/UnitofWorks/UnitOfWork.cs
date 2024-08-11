@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Papara_Final_Project.Models;
 using Papara_Final_Project.Repositories;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.UnitOfWorks
 {

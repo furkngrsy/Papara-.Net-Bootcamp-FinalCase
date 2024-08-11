@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Services;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Controllers
 {

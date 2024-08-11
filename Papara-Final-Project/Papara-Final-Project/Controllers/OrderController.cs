@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Papara_Final_Project.DTOs;
-using Papara_Final_Project.Models;
 using Papara_Final_Project.Services;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Controllers
 {
@@ -28,7 +26,7 @@ namespace Papara_Final_Project.Controllers
             return Ok(orders);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {

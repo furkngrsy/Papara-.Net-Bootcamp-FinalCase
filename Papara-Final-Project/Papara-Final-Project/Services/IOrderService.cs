@@ -1,6 +1,5 @@
 ﻿using Papara_Final_Project.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace Papara_Final_Project.Services
 {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Papara_Final_Project.Services;
+using Papara_Final_Project.DTOs;
 
 [Route("api/[controller]")]
 [ApiController]

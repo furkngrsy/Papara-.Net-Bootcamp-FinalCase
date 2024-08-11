@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Papara_Final_Project.DTOs
+﻿namespace Papara_Final_Project.DTOs
 {
     public class OrderDTO
     {

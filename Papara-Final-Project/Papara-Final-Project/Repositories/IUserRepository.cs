@@ -1,5 +1,4 @@
 ﻿using Papara_Final_Project.Models;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Repositories
 {

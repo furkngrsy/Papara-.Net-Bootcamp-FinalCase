@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Papara_Final_Project.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Repositories
 {

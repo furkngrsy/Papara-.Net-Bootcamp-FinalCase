@@ -1,153 +1,155 @@
 ﻿using Papara_Final_Project.UnitOfWorks;
 using Papara_Final_Project.DTOs;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Papara_Final_Project.Services;
+using Papara_Final_Project.Models;
 
-public class ProductService : IProductService
+namespace Papara_Final_Project.Services
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public ProductService(IUnitOfWork unitOfWork)
+    public class ProductService : IProductService
     {
-        _unitOfWork = unitOfWork;
-    }
+        private readonly IUnitOfWork _unitOfWork;
 
-    public async Task<IEnumerable<ProductDTO>> GetAllProducts()
-    {
-        var products = await _unitOfWork.Products.GetAllProducts();
-        return products.Select(p => new ProductDTO
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            Name = p.Name,
-            Description = p.Description,
-            Price = p.Price,
-            IsAvailable = p.IsAvailable,
-            Stock = p.Stock,
-            RewardRate = p.RewardRate,
-            MaxReward = p.MaxReward,
-            CategoryIds = p.ProductMatchCategories.Select(pc => pc.CategoryId).ToList()
-        }).ToList();
-    }
-
-    public async Task<ProductDTO> GetProductById(int id)
-    {
-        var product = await _unitOfWork.Products.GetProductById(id);
-        if (product == null)
-        {
-            return null;
+            _unitOfWork = unitOfWork;
         }
 
-        return new ProductDTO
+        public async Task<IEnumerable<ProductDTO>> GetAllProducts()
         {
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            IsAvailable = product.IsAvailable,
-            Stock = product.Stock,
-            RewardRate = product.RewardRate,
-            MaxReward = product.MaxReward,
-            CategoryIds = product.ProductMatchCategories.Select(pc => pc.CategoryId).ToList()
-        };
-    }
-
-    public async Task AddProduct(ProductDTO productDto)
-    {
-
-        var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
-        if (categories.Count != productDto.CategoryIds.Count)
-        {
-            throw new Exception("One or more categories do not exist.");
+            var products = await _unitOfWork.Products.GetAllProducts();
+            return products.Select(p => new ProductDTO
+            {
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                IsAvailable = p.IsAvailable,
+                Stock = p.Stock,
+                RewardRate = p.RewardRate,
+                MaxReward = p.MaxReward,
+                CategoryIds = p.ProductMatchCategories.Select(pc => pc.CategoryId).ToList()
+            }).ToList();
         }
 
-        var product = new Product
+        public async Task<ProductDTO> GetProductById(int id)
         {
-            Name = productDto.Name,
-            Description = productDto.Description,
-            Price = productDto.Price,
-            IsAvailable = productDto.IsAvailable,
-            Stock = productDto.Stock,
-            RewardRate = productDto.RewardRate,
-            MaxReward = productDto.MaxReward,
-            ProductMatchCategories = productDto.CategoryIds.Select(cid => new ProductMatchCategory { CategoryId = cid }).ToList()
-        };
+            var product = await _unitOfWork.Products.GetProductById(id);
+            if (product == null)
+            {
+                return null;
+            }
 
-        await _unitOfWork.Products.AddProduct(product);
-        await _unitOfWork.CompleteAsync();
-    }
-
-    public async Task UpdateProduct(int id, ProductDTO productDto)
-    {
-
-        var product = await _unitOfWork.Products.GetProductById(id);
-        if (product == null)
-        {
-            throw new KeyNotFoundException("Product not found");
+            return new ProductDTO
+            {
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                IsAvailable = product.IsAvailable,
+                Stock = product.Stock,
+                RewardRate = product.RewardRate,
+                MaxReward = product.MaxReward,
+                CategoryIds = product.ProductMatchCategories.Select(pc => pc.CategoryId).ToList()
+            };
         }
 
-        var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
-        if (categories.Count != productDto.CategoryIds.Count)
+        public async Task AddProduct(ProductDTO productDto)
         {
-            throw new Exception("One or more categories do not exist.");
+
+            var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
+            if (categories.Count != productDto.CategoryIds.Count)
+            {
+                throw new Exception("One or more categories do not exist.");
+            }
+
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                IsAvailable = productDto.IsAvailable,
+                Stock = productDto.Stock,
+                RewardRate = productDto.RewardRate,
+                MaxReward = productDto.MaxReward,
+                ProductMatchCategories = productDto.CategoryIds.Select(cid => new ProductMatchCategory { CategoryId = cid }).ToList()
+            };
+
+            await _unitOfWork.Products.AddProduct(product);
+            await _unitOfWork.CompleteAsync();
         }
 
-        product.Name = productDto.Name;
-        product.Description = productDto.Description;
-        product.Price = productDto.Price;
-        product.IsAvailable = productDto.IsAvailable;
-        product.Stock = productDto.Stock;
-        product.RewardRate = productDto.RewardRate;
-        product.MaxReward = productDto.MaxReward;
-
-        product.ProductMatchCategories = productDto.CategoryIds.Select(cid => new ProductMatchCategory { ProductId = product.Id, CategoryId = cid }).ToList();
-
-        await _unitOfWork.Products.UpdateProduct(product);
-        await _unitOfWork.CompleteAsync();
-    }
-
-    public async Task DeleteProduct(int id)
-    {
-        await _unitOfWork.Products.DeleteProduct(id);
-        await _unitOfWork.CompleteAsync();
-    }
-
-    public async Task<bool> IsProductAvailable(int productId, int quantity)
-    {
-        var product = await _unitOfWork.Products.GetProductById(productId);
-        return product != null && product.Stock >= quantity && product.IsAvailable;
-    }
-
-    public async Task<decimal> GetProductPriceById(int productId)
-    {
-        var product = await _unitOfWork.Products.GetProductById(productId);
-        return product?.Price ?? 0;
-    }
-
-    public async Task UpdateProductStock(int productId, int newStock)
-    {
-        var product = await _unitOfWork.Products.GetProductById(productId);
-        if (product == null)
+        public async Task UpdateProduct(int id, ProductDTO productDto)
         {
-            throw new KeyNotFoundException("Product not found");
+
+            var product = await _unitOfWork.Products.GetProductById(id);
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            var categories = await _unitOfWork.Categories.GetCategoriesByIds(productDto.CategoryIds);
+            if (categories.Count != productDto.CategoryIds.Count)
+            {
+                throw new Exception("One or more categories do not exist.");
+            }
+
+            product.Name = productDto.Name;
+            product.Description = productDto.Description;
+            product.Price = productDto.Price;
+            product.IsAvailable = productDto.IsAvailable;
+            product.Stock = productDto.Stock;
+            product.RewardRate = productDto.RewardRate;
+            product.MaxReward = productDto.MaxReward;
+
+            product.ProductMatchCategories = productDto.CategoryIds.Select(cid => new ProductMatchCategory { ProductId = product.Id, CategoryId = cid }).ToList();
+
+            await _unitOfWork.Products.UpdateProduct(product);
+            await _unitOfWork.CompleteAsync();
         }
 
-        product.Stock = newStock;
-
-        await _unitOfWork.Products.UpdateProduct(product);
-        await _unitOfWork.CompleteAsync();
-    }
-
-    public async Task UpdateProductAvailability(int productId, bool isAvailable)
-    {
-        var product = await _unitOfWork.Products.GetProductById(productId);
-        if (product == null)
+        public async Task DeleteProduct(int id)
         {
-            throw new KeyNotFoundException("Product not found");
+            await _unitOfWork.Products.DeleteProduct(id);
+            await _unitOfWork.CompleteAsync();
         }
 
-        product.IsAvailable = isAvailable;
+        public async Task<bool> IsProductAvailable(int productId, int quantity)
+        {
+            var product = await _unitOfWork.Products.GetProductById(productId);
+            return product != null && product.Stock >= quantity && product.IsAvailable;
+        }
 
-        await _unitOfWork.Products.UpdateProduct(product);
-        await _unitOfWork.CompleteAsync();
+        public async Task<decimal> GetProductPriceById(int productId)
+        {
+            var product = await _unitOfWork.Products.GetProductById(productId);
+            return product?.Price ?? 0;
+        }
+
+        public async Task UpdateProductStock(int productId, int newStock)
+        {
+            var product = await _unitOfWork.Products.GetProductById(productId);
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            product.Stock = newStock;
+
+            await _unitOfWork.Products.UpdateProduct(product);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task UpdateProductAvailability(int productId, bool isAvailable)
+        {
+            var product = await _unitOfWork.Products.GetProductById(productId);
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            product.IsAvailable = isAvailable;
+
+            await _unitOfWork.Products.UpdateProduct(product);
+            await _unitOfWork.CompleteAsync();
+        }
     }
 }
+
+

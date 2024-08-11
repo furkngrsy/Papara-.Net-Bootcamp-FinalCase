@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Papara_Final_Project.Models
+﻿namespace Papara_Final_Project.Models
 {
     public class Order
     {

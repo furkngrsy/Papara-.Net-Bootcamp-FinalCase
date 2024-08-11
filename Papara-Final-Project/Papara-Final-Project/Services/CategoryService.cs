@@ -3,9 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Models;
 using Papara_Final_Project.UnitOfWorks;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Papara_Final_Project.Services
 {

@@ -1,13 +1,9 @@
 ﻿using FluentValidation;
-using Microsoft.IdentityModel.Tokens;
 using Papara_Final_Project.DTOs;
 using Papara_Final_Project.Models;
 using Papara_Final_Project.Repositories;
 using Papara_Final_Project.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace Papara_Final_Project.Services
 {

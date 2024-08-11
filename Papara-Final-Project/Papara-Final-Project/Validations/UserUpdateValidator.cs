@@ -1,17 +1,12 @@
 ﻿using FluentValidation;
 using Papara_Final_Project.DTOs;
-using Papara_Final_Project.Repositories;
 
 namespace Papara_Final_Project.Validations
 {
     public class UserUpdateValidator : AbstractValidator<UserUpdateDTO>
     {
-        private readonly IUserRepository _userRepository;
-
-        public UserUpdateValidator(IUserRepository userRepository)
+        public UserUpdateValidator()
         {
-            _userRepository = userRepository;
-
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("First name is required.");
 
@@ -20,8 +15,7 @@ namespace Papara_Final_Project.Validations
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
-                .EmailAddress().WithMessage("Invalid email format.")
-                .Must((user, email) => EmailNotInUse(user.Id, email)).WithMessage("Email is already in use.");
+                .EmailAddress().WithMessage("Invalid email format.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")
@@ -29,12 +23,6 @@ namespace Papara_Final_Project.Validations
                 .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
                 .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
                 .Matches("[0-9]").WithMessage("Password must contain at least one number.");
-        }
-
-        private bool EmailNotInUse(int userId, string email)
-        {
-            var existingUser = _userRepository.GetUserByEmail(email).Result;
-            return existingUser == null || existingUser.Id == userId;
         }
     }
 }
