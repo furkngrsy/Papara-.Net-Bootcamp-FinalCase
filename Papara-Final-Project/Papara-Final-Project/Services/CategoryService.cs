@@ -12,12 +12,10 @@ namespace Papara_Final_Project.Services
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<CategoryDTO> _categoryValidator;
 
-        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryDTO> categoryValidator)
+        public CategoryService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _categoryValidator = categoryValidator;
         }
 
         public async Task<IEnumerable<CategoryDTO>> GetAllCategories()
@@ -49,12 +47,6 @@ namespace Papara_Final_Project.Services
 
         public async Task AddCategory(CategoryDTO categoryDto)
         {
-            var validationResult = await _categoryValidator.ValidateAsync(categoryDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
-
             var category = new Category
             {
                 Name = categoryDto.Name,
@@ -68,11 +60,6 @@ namespace Papara_Final_Project.Services
 
         public async Task UpdateCategory(int id, CategoryDTO categoryDto)
         {
-            var validationResult = await _categoryValidator.ValidateAsync(categoryDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
 
             var category = await _unitOfWork.Categories.GetCategoryById(id);
             if (category == null)

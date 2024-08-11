@@ -22,20 +22,16 @@ namespace Papara_Final_Project.Services
             _configuration = configuration;
         }
 
-        public async Task<UserDTO> Authenticate(string email, string password)
+        private string GenerateJwtToken(User user)
         {
-            var user = await _unitOfWork.Users.GetUserByEmail(email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
-                return null;
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Kullanıcı ID'si ekleniyor
-                    new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
+            new Claim(ClaimTypes.Role, user.Role)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -43,7 +39,14 @@ namespace Papara_Final_Project.Services
                 Audience = _configuration["Jwt:Audience"]
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<UserDTO> Authenticate(string email, string password)
+        {
+            var user = await _unitOfWork.Users.GetUserByEmail(email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+                return null;
 
             return new UserDTO
             {
@@ -54,7 +57,7 @@ namespace Papara_Final_Project.Services
                 Role = user.Role,
                 WalletBalance = user.WalletBalance,
                 PointsBalance = user.PointsBalance,
-                Token = tokenString
+                Token = GenerateJwtToken(user)
             };
         }
 
@@ -67,10 +70,7 @@ namespace Papara_Final_Project.Services
 
         public async Task Update(User user)
         {
-            if (!string.IsNullOrEmpty(user.Password))
-            {
-                user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            }
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             await _unitOfWork.Users.UpdateUser(user);
             await _unitOfWork.CompleteAsync();
         }

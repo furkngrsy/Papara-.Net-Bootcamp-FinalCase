@@ -11,8 +11,6 @@ using Papara_Final_Project.UnitOfWorks;
 using System.Text;
 using FluentValidation;
 using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Papara_Final_Project.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +26,7 @@ builder.Services.AddControllers().AddFluentValidation(fv =>
     fv.RegisterValidatorsFromAssemblyContaining<ProductValidator>();
     fv.RegisterValidatorsFromAssemblyContaining<CouponValidator>();
     fv.RegisterValidatorsFromAssemblyContaining<OrderValidator>();
+    fv.RegisterValidatorsFromAssemblyContaining<PaymentValidator>();
 })
 .AddNewtonsoftJson(options =>
 {
@@ -51,7 +50,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Swagger ayarlarýný ekliyoruz
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Papara-Final-Project", Version = "v1" });
@@ -95,14 +93,6 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICouponService, CouponService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-
-
-builder.Services.AddScoped<IValidator<UserRegisterDTO>, UserRegisterValidator>();
-builder.Services.AddScoped<IValidator<UserUpdateDTO>, UserUpdateValidator>();
-builder.Services.AddScoped<IValidator<CategoryDTO>, CategoryValidator>();
-builder.Services.AddScoped<IValidator<ProductDTO>, ProductValidator>();
-builder.Services.AddScoped<IValidator<CouponDTO>, CouponValidator>();
-builder.Services.AddScoped<IValidator<OrderDTO>, OrderValidator>();
 
 var app = builder.Build();
 

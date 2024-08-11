@@ -11,12 +11,10 @@ namespace Papara_Final_Project.Services
     public class CouponService : ICouponService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<CouponDTO> _couponValidator;
 
         public CouponService(IUnitOfWork unitOfWork, IValidator<CouponDTO> couponValidator)
         {
             _unitOfWork = unitOfWork;
-            _couponValidator = couponValidator;
         }
 
         public async Task<IEnumerable<CouponDTO>> GetAllCoupons()
@@ -48,13 +46,7 @@ namespace Papara_Final_Project.Services
 
         public async Task AddCoupon(CouponDTO couponDto)
         {
-            var validationResult = await _couponValidator.ValidateAsync(couponDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
 
-            // Kupon kodunun unique olduğunu kontrol et
             var existingCoupon = await _unitOfWork.Coupons.GetCouponByCode(couponDto.Code);
             if (existingCoupon != null)
             {
@@ -75,11 +67,6 @@ namespace Papara_Final_Project.Services
 
         public async Task UpdateCoupon(int id, CouponDTO couponDto)
         {
-            var validationResult = await _couponValidator.ValidateAsync(couponDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
 
             var coupon = await _unitOfWork.Coupons.GetCouponById(id);
             if (coupon == null)

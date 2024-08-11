@@ -1,4 +1,5 @@
-﻿using Papara_Final_Project.DTOs;
+﻿using FluentValidation;
+using Papara_Final_Project.DTOs;
 using System;
 using System.Threading.Tasks;
 
@@ -6,25 +7,24 @@ namespace Papara_Final_Project.Services
 {
     public class PaymentService : IPaymentService
     {
+
+        private readonly IValidator<PaymentDTO> _paymentValidator;
+
+        public PaymentService(IValidator<PaymentDTO> paymentValidator)
+        {
+            _paymentValidator = paymentValidator;
+        }
+
         public async Task<bool> ProcessPayment(PaymentDTO paymentDto)
         {
-            if (string.IsNullOrWhiteSpace(paymentDto.Name) || paymentDto.CardNumber.Length != 16 || !IsValidExpiryDate(paymentDto.ExpiryDate) || paymentDto.CVV.Length != 3)
+            var validationResult = await _paymentValidator.ValidateAsync(paymentDto);
+            if (!validationResult.IsValid)
             {
-                return false;
+                throw new ValidationException(validationResult.Errors); 
             }
 
-            // Burada gerçek ödeme işlemi gerçekleştirilmelidir.
             return await Task.FromResult(true);
         }
-
-        private bool IsValidExpiryDate(string expiryDate)
-        {
-            if (!DateTime.TryParseExact(expiryDate, "MM/yy", null, System.Globalization.DateTimeStyles.None, out DateTime date))
-            {
-                return false;
-            }
-
-            return date > DateTime.Now;
-        }
+        
     }
 }
